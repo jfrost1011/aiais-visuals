@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Inside Step 4 — How Talent Mapping Actually Works</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f8f6f1;
+  --paper: #ffffff;
+  --ink: #1a1a1a;
+  --muted: #6b6b6b;
+  --soft: #8b8579;
+  --line: #d4d0c8;
+  --line-soft: #e8e4dc;
+
+  --ai: #0e7c7b;
+  --ai-bg: #d6efee;
+  --ai-tint: #f0faf9;
+  --ai-deep: #0a5e5d;
+  --partner: #b8884a;
+  --partner-bg: #f3e6d0;
+  --partner-tint: #faf4e8;
+  --partner-deep: #8a6533;
+
+  --critical: #b91c1c;
+  --growth: #6d4aae;
+  --growth-bg: #ede4fa;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: var(--bg); }
+body {
+  font-family: 'Fraunces', Georgia, serif;
+  color: var(--ink); line-height: 1.5;
+  padding: 48px 32px; min-height: 100vh;
+}
+.canvas {
+  max-width: 1320px; margin: 0 auto; background: var(--paper);
+  border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06);
+  padding: 56px 56px 52px; position: relative;
+}
+.canvas::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+  background: linear-gradient(90deg, var(--partner) 0%, var(--partner) 50%, var(--ai) 50%, var(--ai) 100%);
+  border-radius: 4px 4px 0 0;
+}
+
+/* ─── Header ──────────────────────────────────────────────────────────── */
+header { margin-bottom: 28px; padding-bottom: 22px; border-bottom: 1px solid var(--line); }
+.eyebrow {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.12em;
+  color: var(--muted); text-transform: uppercase; margin-bottom: 12px;
+}
+.eyebrow .sep { color: var(--line); margin: 0 10px; }
+.eyebrow .step-pill {
+  background: var(--ai); color: white; padding: 3px 10px; border-radius: 3px;
+  font-weight: 700; letter-spacing: 0.06em;
+}
+h1 {
+  font-family: 'Fraunces', serif; font-size: 38px; font-weight: 800;
+  letter-spacing: -0.02em; line-height: 1.1; margin-bottom: 10px;
+}
+.subtitle {
+  font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--muted);
+  max-width: 920px; line-height: 1.55;
+}
+
+/* ─── Top metric strip ────────────────────────────────────────────────── */
+.metric-strip {
+  display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 14px;
+  margin-bottom: 32px;
+}
+.metric-card {
+  border: 1px solid var(--line); border-radius: 4px; padding: 16px 18px;
+  background: var(--paper); position: relative;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.metric-card.manual { background: var(--partner-tint); border-color: var(--partner-bg); }
+.metric-card.ai { background: var(--ai-tint); border-color: var(--ai-bg); }
+.metric-card-label {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--muted);
+}
+.metric-card.manual .metric-card-label { color: var(--partner-deep); }
+.metric-card.ai .metric-card-label { color: var(--ai-deep); }
+.metric-card-value {
+  font-family: 'Fraunces', serif; font-size: 26px; font-weight: 700;
+  letter-spacing: -0.015em; line-height: 1.1;
+}
+.metric-card.manual .metric-card-value { color: var(--partner-deep); }
+.metric-card.ai .metric-card-value { color: var(--ai-deep); }
+.metric-card-note {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--soft);
+}
+
+/* ─── Split workflow ──────────────────────────────────────────────────── */
+.split-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 32px;
+  position: relative; margin-bottom: 8px;
+}
+.split-grid::before {
+  content: ''; position: absolute; left: 50%; top: 40px; bottom: 0; width: 1px;
+  background: linear-gradient(180deg, var(--line) 0%, var(--line) 70%, transparent 100%);
+  transform: translateX(-50%);
+}
+.column-head {
+  margin-bottom: 18px; padding-bottom: 14px; border-bottom: 2px solid;
+  display: flex; align-items: baseline; gap: 12px;
+}
+.column-head.manual { border-color: var(--partner); }
+.column-head.ai { border-color: var(--ai); }
+.column-head-eyebrow {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.12em;
+  text-transform: uppercase; font-weight: 700;
+}
+.column-head.manual .column-head-eyebrow { color: var(--partner-deep); }
+.column-head.ai .column-head-eyebrow { color: var(--ai-deep); }
+.column-head-title {
+  font-family: 'Fraunces', serif; font-size: 20px; font-weight: 700;
+  letter-spacing: -0.01em; line-height: 1.2;
+}
+.column-head-time {
+  margin-left: auto;
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  padding: 4px 10px; border-radius: 3px; font-weight: 700; letter-spacing: 0.04em;
+}
+.column-head.manual .column-head-time { background: var(--partner-bg); color: var(--partner-deep); }
+.column-head.ai .column-head-time { background: var(--ai-bg); color: var(--ai-deep); }
+
+/* ─── Stages ──────────────────────────────────────────────────────────── */
+.stages { display: flex; flex-direction: column; gap: 10px; }
+.stage {
+  display: grid; grid-template-columns: 38px 1fr; gap: 12px;
+  padding: 12px 14px; border: 1px solid var(--line); border-radius: 5px;
+  background: var(--paper); position: relative;
+}
+.stage-num {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700;
+  letter-spacing: 0.04em; align-self: center; text-align: center;
+  padding: 4px 0; border-radius: 3px;
+}
+.stage.manual .stage-num { background: var(--partner-bg); color: var(--partner-deep); }
+.stage.ai .stage-num { background: var(--ai-bg); color: var(--ai-deep); }
+.stage-body { display: flex; flex-direction: column; gap: 3px; }
+.stage-title {
+  font-family: 'Fraunces', serif; font-size: 13.5px; font-weight: 700;
+  letter-spacing: -0.005em; line-height: 1.25;
+}
+.stage-detail {
+  font-family: 'JetBrains Mono', monospace; font-size: 10.5px; line-height: 1.5;
+  color: var(--muted);
+}
+.stage-detail .data-tag {
+  display: inline-block; padding: 1px 6px; border-radius: 2px;
+  font-weight: 700; font-size: 10px; letter-spacing: 0.03em;
+}
+.stage.manual .stage-detail .data-tag { background: var(--partner-bg); color: var(--partner-deep); }
+.stage.ai .stage-detail .data-tag { background: var(--ai-bg); color: var(--ai-deep); }
+
+.stage-arrow {
+  display: flex; justify-content: center; height: 8px;
+  font-family: 'JetBrains Mono', monospace; font-size: 14px; color: var(--line);
+}
+.stage-arrow::before { content: '↓'; }
+
+/* ─── Outcome strip per column ────────────────────────────────────────── */
+.outcome-strip {
+  margin-top: 14px; padding: 14px 16px; border-radius: 5px;
+  border: 1.5px solid; display: flex; flex-direction: column; gap: 4px;
+}
+.outcome-strip.manual { border-color: var(--partner); background: var(--partner-tint); }
+.outcome-strip.ai { border-color: var(--ai); background: var(--ai-tint); }
+.outcome-eyebrow {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.1em;
+  text-transform: uppercase; font-weight: 700;
+}
+.outcome-strip.manual .outcome-eyebrow { color: var(--partner-deep); }
+.outcome-strip.ai .outcome-eyebrow { color: var(--ai-deep); }
+.outcome-title {
+  font-family: 'Fraunces', serif; font-size: 15px; font-weight: 700;
+  line-height: 1.3;
+}
+
+/* ─── Delta bridge ────────────────────────────────────────────────────── */
+.delta-bridge {
+  margin: 36px 0; padding: 24px 28px; border: 1px solid var(--line);
+  border-radius: 6px; background: var(--bg); position: relative;
+}
+.delta-bridge::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+  background: linear-gradient(180deg, var(--partner) 0%, var(--ai) 100%);
+  border-radius: 4px 0 0 4px;
+}
+.delta-eyebrow {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--ink); font-weight: 700; margin-bottom: 6px;
+}
+.delta-headline {
+  font-family: 'Fraunces', serif; font-size: 20px; font-weight: 700;
+  letter-spacing: -0.01em; line-height: 1.25; margin-bottom: 16px;
+}
+.delta-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;
+}
+.delta-card {
+  background: var(--paper); border: 1px solid var(--line); border-radius: 4px;
+  padding: 12px 14px;
+}
+.delta-card-label {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 4px; font-weight: 700;
+}
+.delta-card-shift {
+  font-family: 'Fraunces', serif; font-size: 13px; font-weight: 600;
+  line-height: 1.3;
+}
+.delta-card-shift .from { color: var(--partner-deep); }
+.delta-card-shift .arrow {
+  display: inline-block; margin: 0 4px; color: var(--soft);
+  font-family: 'JetBrains Mono', monospace; font-weight: 400;
+}
+.delta-card-shift .to { color: var(--ai-deep); font-weight: 700; }
+
+/* ─── Phase 2 preview ─────────────────────────────────────────────────── */
+.phase2-block {
+  margin-top: 36px; padding: 28px 28px 24px; border-radius: 6px;
+  background: linear-gradient(180deg, var(--ai-tint) 0%, var(--paper) 100%);
+  border: 1px solid var(--line); position: relative;
+}
+.phase2-block::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+  background: var(--ai); border-radius: 4px 0 0 4px;
+}
+.phase2-eyebrow {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--ai-deep); font-weight: 700; margin-bottom: 8px;
+}
+.phase2-headline {
+  font-family: 'Fraunces', serif; font-size: 22px; font-weight: 700;
+  letter-spacing: -0.01em; line-height: 1.2; margin-bottom: 8px; max-width: 820px;
+}
+.phase2-deck {
+  font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted);
+  max-width: 820px; line-height: 1.55; margin-bottom: 22px;
+}
+.phase2-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;
+}
+.phase2-card {
+  background: var(--paper); border: 1px solid var(--line);
+  border-radius: 5px; padding: 14px 14px; position: relative;
+  display: flex; flex-direction: column;
+}
+.phase2-card::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+  background: var(--ai); border-radius: 3px 0 0 3px;
+}
+.phase2-card-num {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ai-deep);
+  letter-spacing: 0.08em; font-weight: 700; margin-bottom: 6px;
+}
+.phase2-card-title {
+  font-family: 'Fraunces', serif; font-size: 14px; font-weight: 700;
+  margin-bottom: 6px; line-height: 1.25;
+}
+.phase2-card-desc {
+  font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--muted);
+  line-height: 1.5;
+}
+
+/* ─── Closing ─────────────────────────────────────────────────────────── */
+.closing {
+  margin-top: 32px; padding: 24px 32px; text-align: center;
+  border: 1px solid var(--line); border-radius: 6px; background: var(--bg);
+}
+.closing-line {
+  font-family: 'Fraunces', serif; font-size: 24px; font-weight: 600;
+  font-style: italic; letter-spacing: -0.01em; line-height: 1.3;
+}
+.closing-line .accent { color: var(--ai); font-weight: 700; font-style: normal; }
+.closing-line .partner-accent { color: var(--partner-deep); font-weight: 700; font-style: normal; }
+
+/* ─── Footer ──────────────────────────────────────────────────────────── */
+footer {
+  margin-top: 28px; padding-top: 18px; border-top: 1px solid var(--line);
+  display: flex; justify-content: space-between;
+  font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--soft);
+  letter-spacing: 0.04em; text-transform: uppercase;
+}
+
+@media (max-width: 1100px) {
+  .split-grid { grid-template-columns: 1fr; gap: 16px; }
+  .split-grid::before { display: none; }
+  .delta-grid { grid-template-columns: repeat(2, 1fr); }
+  .phase2-grid { grid-template-columns: repeat(2, 1fr); }
+  .metric-strip { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
+<body>
+<div class="canvas">
+
+  <header>
+    <div class="eyebrow">
+      <span class="step-pill">Step 04</span>
+      <span class="sep">/</span>
+      Talent Mapping Micro-Map
+      <span class="sep">/</span>
+      Talentum Corporation &middot; May 5, 2026
+    </div>
+    <h1>Inside Step 4 &mdash; How Talent Mapping Actually Works.</h1>
+    <p class="subtitle">
+      Zooming into one step of the 12-point SOP. On the left: how Step 4 currently runs at Talentum &mdash;
+      manual sourcing, referral-driven, partner-reviewed over weeks. On the right: how V2 and CMF ran today &mdash;
+      Apollo company-domain search, automated enrichment, ranked deliverable matching the Talentum template,
+      in under 36 hours. Same step, same outcome shape, different operating tempo.
+    </p>
+  </header>
+
+  <!-- ── Top metric strip ── -->
+  <div class="metric-strip">
+    <div class="metric-card manual">
+      <div class="metric-card-label">Manual cycle (CMF)</div>
+      <div class="metric-card-value">~3 months</div>
+      <div class="metric-card-note">86 candidates surfaced over a multi-month research arc</div>
+    </div>
+    <div class="metric-card ai">
+      <div class="metric-card-label">AI cycle (CMF re-run)</div>
+      <div class="metric-card-value">&lt; 36 hrs</div>
+      <div class="metric-card-note">17 net-new candidates, verified emails, ranked &amp; commented</div>
+    </div>
+    <div class="metric-card manual">
+      <div class="metric-card-label">Manual longlist (V2 spec)</div>
+      <div class="metric-card-value">15&ndash;20 days</div>
+      <div class="metric-card-note">Per Alex's May 2 estimate &mdash; standard Talentum cycle</div>
+    </div>
+    <div class="metric-card ai">
+      <div class="metric-card-label">AI longlist (V2 actual)</div>
+      <div class="metric-card-value">1&ndash;2 days</div>
+      <div class="metric-card-note">498 sourced &rarr; 16 final candidates, scored &amp; ranked</div>
+    </div>
+  </div>
+
+  <!-- ── Split workflow ── -->
+  <div class="split-grid">
+
+    <!-- Manual column -->
+    <div>
+      <div class="column-head manual">
+        <span class="column-head-eyebrow">A. Today</span>
+        <span class="column-head-title">Manual Talent Mapping</span>
+        <span class="column-head-time">15&ndash;20 days</span>
+      </div>
+
+      <div class="stages">
+        <div class="stage manual">
+          <div class="stage-num">01</div>
+          <div class="stage-body">
+            <div class="stage-title">Brief &amp; mandate intake</div>
+            <div class="stage-detail">
+              Partner receives the brief from the client (or relays from intake).
+              Mandate translated into a target candidate profile in the partner's head, on a Word doc, or shared verbally with the research team.
+            </div>
+          </div>
+        </div>
+        <div class="stage-arrow"></div>
+
+        <div class="stage manual">
+          <div class="stage-num">02</div>
+          <div class="stage-body">
+            <div class="stage-title">Manual sourcing &mdash; referral-led</div>
+            <div class="stage-detail">
+              <span class="data-tag">CMF</span>
+              Sergio Tamez (research contractor) sourced
+              <strong>48 of 85</strong> candidates &mdash; 56% of the entire log was referral-driven.
+              Remaining 37 came from Alex Rivera, Alejandro Marin, and LinkedIn.
+            </div>
+          </div>
+        </div>
+        <div class="stage-arrow"></div>
+
+        <div class="stage manual">
+          <div class="stage-num">03</div>
+          <div class="stage-body">
+            <div class="stage-title">CV intake &amp; Excel data entry</div>
+            <div class="stage-detail">
+              M. Suarez collects CVs and contact information.
+              Manually populates rows into Talentum's spreadsheet template &mdash;
+              name, company, title, email, phone, location, comments. Hours per batch.
+            </div>
+          </div>
+        </div>
+        <div class="stage-arrow"></div>
+
+        <div class="stage manual">
+          <div class="stage-num">04</div>
+          <div class="stage-body">
+            <div class="stage-title">Manual deduplication &amp; cleanup</div>
+            <div class="stage-detail">
+              Cross-checking against existing logs, fixing typos, reconciling spelling variants,
+              standardizing titles. The "Guilerhme" / "Guilherme" type of artifact accumulates over time.
+            </div>
+          </div>
+        </div>
+        <div class="stage-arrow"></div>
+
+        <div class="stage manual">
+          <div class="stage-num">05</div>
+          <div class="stage-body">
+            <div class="stage-title">Partner review &amp; status assignment</div>
+            <div class="stage-detail">
+              Alex and Alejandro work through the list candidate by candidate.
+              Status tags applied: Sales Rep Rejected, Candidate Not Interested, Presented, etc.
+              Most filtering effort happens here, after the data has already been collected.
+            </div>
+          </div>
+        </div>
+        <div class="stage-arrow"></div>
+
+        <div class="stage manual">
+          <div class="stage-num">06</div>
+          <div class="stage-body">
+            <div class="stage-title">Outreach &mdash; one at a time</div>
+            <div class="stage-detail">
+              <span class="data-tag">CMF</span>
+              From the 85-row pool, only <strong>4 candidates</strong> reached "Presented" status
+              over the multi-month cycle. The funnel narrows steeply due to outreach throughput limits.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="outcome-strip manual">
+        <div class="outcome-eyebrow">Outcome &mdash; CMF as it ran</div>
+        <div class="outcome-title">85 candidates surfaced &middot; 48 from one contractor &middot; 4 presented &middot; multi-month cycle</div>
+      </div>
+    </div>
+
+    <!-- AI column -->
+    <div>
+      <div class="column-head ai">
+        <span class="column-head-eyebrow">B. Today, with AI</span>
+        <span class="column-head-title">AI-Augmented Talent Mapping</span>
+        <span class="column-head-time">1&ndash;2 days</span>
+      </div>
+
+      <div class="stages">
+        <div class="stage ai">
+          <div class="stage-num">01</div>
+          <div class="stage-body">
+            <div class="stage-title">Structured intake form &mdash; 5 keywords</div>
+            <div class="stage-detail">
+              JD parsed automatically. Must-haves extracted into a structured intake form.
+              For V2: 5 keywords identified (marketing leadership, retail/CPG sector, MX market, P&amp;L, team scale).
+              Same shape that fits Talentum's existing template.
+            </div>
+          </div>
+        </div>
+        <div class="stage-arrow"></div>
+
+        <div class="stage ai">
+          <div class="stage-num">02</div>
+          <div class="stage-body">
+            <div class="stage-title">Apollo company-domain search</div>
+            <div class="stage-detail">
+              <span class="data-tag">CMF</span>
+              Target companies defined (Rain Bird, Netafim, Toro, Hunter).
+              Apollo returned <strong>177 contacts</strong> &mdash; the entire international staff at the four target companies.
+              <span class="data-tag">V2</span>
+              <strong>498 candidates</strong> sourced from MX retail/CPG marketing leadership pool.
+            </div>
+          </div>
+        </div>
+        <div class="stage-arrow"></div>
+
+        <div class="stage ai">
+          <div class="stage-num">03</div>
+          <div class="stage-body">
+            <div class="stage-title">Multi-pass enrichment</div>
+            <div class="stage-detail">
+              Each candidate enriched with verified email, LinkedIn URL, full employment history,
+              tenure data, and location. <strong>Wave 1: 12/12 verified emails. Wave 2: 5/6 verified emails.</strong>
+              Apollo's data was the spine; cross-referenced against existing log automatically.
+            </div>
+          </div>
+        </div>
+        <div class="stage-arrow"></div>
+
+        <div class="stage ai">
+          <div class="stage-num">04</div>
+          <div class="stage-body">
+            <div class="stage-title">Cross-reference vs. existing log</div>
+            <div class="stage-detail">
+              <span class="data-tag">CMF</span>
+              Of the 177 returned, <strong>24 overlapped with the existing 85-row log</strong> (71% friction =
+              mostly Sales Rep Rejected and Not Interested) &mdash; AI surfaced them, the engine flagged the overlap,
+              they were excluded automatically. Net-new yield: 153.
+            </div>
+          </div>
+        </div>
+        <div class="stage-arrow"></div>
+
+        <div class="stage ai">
+          <div class="stage-num">05</div>
+          <div class="stage-body">
+            <div class="stage-title">Stability &amp; scoring algorithm</div>
+            <div class="stage-detail">
+              Each candidate scored: keyword match count, tenure stability tier, recency of role,
+              geography fit, seniority alignment. Ranked output produced. Comments column populated
+              automatically with the rationale &mdash; not a generic blurb.
+            </div>
+          </div>
+        </div>
+        <div class="stage-arrow"></div>
+
+        <div class="stage ai">
+          <div class="stage-num">06</div>
+          <div class="stage-body">
+            <div class="stage-title">Deliverable in Talentum's exact template</div>
+            <div class="stage-detail">
+              <span class="data-tag">V2</span>
+              <strong>16 final + 3 supplementary</strong> in the Marketing Manager intake format you use.
+              <span class="data-tag">CMF</span>
+              <strong>17 net-new</strong> appended to the existing 85 rows in the same Int. Sales Mgr sheet.
+              No re-formatting needed &mdash; opens straight into your workflow.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="outcome-strip ai">
+        <div class="outcome-eyebrow">Outcome &mdash; CMF re-run, this weekend</div>
+        <div class="outcome-title">177 returned &middot; 24 cross-ref overlaps caught &middot; 17 net-new ranked &middot; under 36 hours</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Delta bridge ── -->
+  <div class="delta-bridge">
+    <div class="delta-eyebrow">The Four Shifts</div>
+    <div class="delta-headline">What actually changed between the two workflows.</div>
+    <div class="delta-grid">
+      <div class="delta-card">
+        <div class="delta-card-label">Sourcing</div>
+        <div class="delta-card-shift">
+          <span class="from">human network</span>
+          <span class="arrow">&rarr;</span>
+          <span class="to">systematic company-domain scan</span>
+        </div>
+      </div>
+      <div class="delta-card">
+        <div class="delta-card-label">Enrichment</div>
+        <div class="delta-card-shift">
+          <span class="from">manual research</span>
+          <span class="arrow">&rarr;</span>
+          <span class="to">Apollo verified contact data</span>
+        </div>
+      </div>
+      <div class="delta-card">
+        <div class="delta-card-label">Scoring</div>
+        <div class="delta-card-shift">
+          <span class="from">gut feel</span>
+          <span class="arrow">&rarr;</span>
+          <span class="to">keyword + stability + tenure</span>
+        </div>
+      </div>
+      <div class="delta-card">
+        <div class="delta-card-label">Output</div>
+        <div class="delta-card-shift">
+          <span class="from">messy Excel</span>
+          <span class="arrow">&rarr;</span>
+          <span class="to">ranked deliverable in your template</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Phase 2 preview ── -->
+  <div class="phase2-block">
+    <div class="phase2-eyebrow">Phase 2 &mdash; The Architecture Replicates</div>
+    <div class="phase2-headline">Same machine, different step. The architecture you saw in Step 4 extends across the SOP.</div>
+    <div class="phase2-deck">
+      Step 4 is the proof point because it's the highest-volume, most data-heavy step &mdash; if AI works there,
+      the rest follow more easily, not less. The same engine (intake parsing &middot; structured search &middot;
+      enrichment &middot; cross-reference &middot; scoring &middot; deliverable formatting) re-points cleanly at the next four.
+      Three weeks per step to deploy. Each one compounds.
+    </div>
+    <div class="phase2-grid">
+      <div class="phase2-card">
+        <div class="phase2-card-num">Next &mdash; Step 03</div>
+        <div class="phase2-card-title">Position Intake</div>
+        <div class="phase2-card-desc">
+          AI captures the intake meeting in real time, transcribes bilingually, extracts must-haves vs. nice-to-haves,
+          drafts the intake document, flags ambiguities for the partner to resolve before the deep-dive ends.
+        </div>
+      </div>
+      <div class="phase2-card">
+        <div class="phase2-card-num">Next &mdash; Step 05</div>
+        <div class="phase2-card-title">Initial Screening</div>
+        <div class="phase2-card-desc">
+          AI runs first-touch outreach in Spanish or English at scale, validates interest and eligibility,
+          captures responses, surfaces the candidates worth the partner's time. Edge cases escalated.
+        </div>
+      </div>
+      <div class="phase2-card">
+        <div class="phase2-card-num">Next &mdash; Step 08</div>
+        <div class="phase2-card-title">Client&ndash;Candidate Interview Mgmt</div>
+        <div class="phase2-card-desc">
+          AI handles all scheduling, prep packets for both sides, structured feedback collection
+          after each round, and momentum tracking. Partner steps in for escalations and high-stakes calls.
+        </div>
+      </div>
+      <div class="phase2-card">
+        <div class="phase2-card-num">Next &mdash; Step 12</div>
+        <div class="phase2-card-title">Post-Placement Follow-Up</div>
+        <div class="phase2-card-desc">
+          AI runs the entire Day 1 &rarr; Week 1 &rarr; Month 1 &rarr; Quarter &rarr; Semester &rarr; Year cadence.
+          Risk signals surfaced. Warranty triggers flagged. Partner intervenes only on escalation.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Closing ── -->
+  <div class="closing">
+    <div class="closing-line">
+      <span class="partner-accent">Step 4 is shipped.</span>
+      &nbsp;
+      <span class="accent">The architecture replicates.</span>
+    </div>
+  </div>
+
+  <footer>
+    <span>STEP 04 MICRO-MAP &mdash; SOURCE: V2 + CMF DELIVERABLES, MAY 2026</span>
+    <span>BUILT BY JOS&Eacute; FRAUSTO &middot; AIAIS &middot; MAY 5 2026 &middot; v1</span>
+  </footer>
+
+</div>
+</body>
+</html>
