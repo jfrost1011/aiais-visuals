@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AIAIS Visual Explainers</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0a0e1a; color: #e0e6f0; min-height: 100vh; }
+    header { border-bottom: 1px solid #1e2a45; padding: 24px 40px; display: flex; align-items: center; gap: 14px; }
+    .logo { width: 36px; height: 36px; background: linear-gradient(135deg, #3b82f6, #8b5cf6); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px; color: #fff; }
+    header h1 { font-size: 20px; font-weight: 600; letter-spacing: -0.02em; }
+    header span { color: #3b82f6; }
+    .tagline { font-size: 13px; color: #6b7fa8; margin-left: auto; }
+    main { max-width: 960px; margin: 0 auto; padding: 60px 40px; }
+    .hero { text-align: center; margin-bottom: 60px; }
+    .hero h2 { font-size: 42px; font-weight: 700; letter-spacing: -0.03em; line-height: 1.2; margin-bottom: 16px; }
+    .hero h2 em { font-style: normal; color: #3b82f6; }
+    .hero p { font-size: 16px; color: #8a9bbf; max-width: 480px; margin: 0 auto; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+    .card { background: #111827; border: 1px solid #1e2a45; border-radius: 12px; overflow: hidden; transition: border-color 0.2s, transform 0.2s; text-decoration: none; color: inherit; display: block; }
+    .card:hover { border-color: #3b82f6; transform: translateY(-2px); }
+    .card-thumb { height: 140px; background: linear-gradient(135deg, #1e2a45 0%, #0f172a 100%); display: flex; align-items: center; justify-content: center; font-size: 36px; }
+    .card-body { padding: 18px; }
+    .card-title { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+    .card-desc { font-size: 13px; color: #6b7fa8; line-height: 1.5; }
+    .badge { display: inline-block; margin-top: 12px; font-size: 11px; background: #1e2a45; color: #3b82f6; padding: 3px 8px; border-radius: 4px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; }
+    footer { text-align: center; padding: 40px; color: #3a4a6a; font-size: 13px; border-top: 1px solid #1e2a45; margin-top: 80px; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">A</div>
+    <h1>AIAIS <span>Visuals</span></h1>
+    <span class="tagline">AI-Powered Business Intelligence</span>
+  </header>
+  <main>
+    <div class="hero">
+      <h2>Visual Explainers<br />for the <em>AI-Native</em> Era</h2>
+      <p>Self-contained, shareable HTML pages that make complex AI concepts immediately clear.</p>
+    </div>
+    <div class="grid">
+      <a href="visuals/sample.html" class="card">
+        <div class="card-thumb">⚙️</div>
+        <div class="card-body">
+          <div class="card-title">How AI Transforms Business Operations</div>
+          <div class="card-desc">A visual walkthrough of AI integration across the modern enterprise — from data to decisions.</div>
+          <span class="badge">Demo</span>
+        </div>
+      </a>
+    </div>
+  </main>
+  <footer>&copy; 2026 AIAIS — AI-Integrated Advisory &amp; Implementation Services</footer>
+</body>
+</html>
